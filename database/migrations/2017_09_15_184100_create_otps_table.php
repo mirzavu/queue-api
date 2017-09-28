@@ -16,7 +16,7 @@ class CreateOtpsTable extends Migration
         Schema::create('otps', function (Blueprint $table) {
             $table->increments('id');
             $table->string('mobile');
-            $table->string('otp');
+            $table->string('otp')->nullable();
             $table->timestamps();
         });
     }

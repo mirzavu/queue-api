@@ -39,36 +39,17 @@ class OTPController extends Controller
             $otp_row = OTP::firstorCreate(['mobile' => $request->mobile]);
             $otp_row->otp = $otp;
             $otp_row->save();
+            $ch = curl_init($url);
+
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+            curl_setopt($ch, CURLOPT_URL,$url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $output = curl_exec ($ch);
             return response()->json([
                 'status' => 'ok'
             ], 201);
-            // $ch = curl_init($url);
-
-            // curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-            // curl_setopt($ch, CURLOPT_URL,$url);
-            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            // $output = curl_exec ($ch);
         }
 
-        // $user = new User($request->all());
-        // if(!$user->save()) {
-        //     throw new HttpException(500);
-        // }
-
-        // if(!Config::get('boilerplate.sign_up.release_token')) {
-        //     return response()->json([
-        //         'status' => 'ok'
-        //     ], 201);
-        // }
-
-        // $token = $JWTAuth->fromUser($user);
-        // return response()->json([
-        //     'status' => 'ok',
-        //     'id' => $user->id,
-        //     'token' => $token,
-        //     'email' => $user->email,
-        //     'name' => $user->name
-        // ], 201);
     }
 
     public function verifyOTP(Request $request, JWTAuth $JWTAuth)
