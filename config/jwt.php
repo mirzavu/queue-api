@@ -33,7 +33,7 @@ return [
     |
     */
 
-    'ttl' => 60,
+    'ttl' => 15000,
 
     /*
     |--------------------------------------------------------------------------
@@ -109,8 +109,8 @@ return [
     | If you do not want or need this functionality, then set this to false.
     |
     */
-
-    'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', true),
+    // 'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', false),
+    'blacklist_enabled' => false,
 
     /*
     |--------------------------------------------------------------------------

@@ -7,6 +7,7 @@ use Log;
 use Validator;
 use App\User;
 use App\Http\Requests;
+use Illuminate\Http\Request;
 use Tymon\JWTAuth\JWTAuth;
 use App\Http\Controllers\Controller;
 use App\Api\V1\Requests\SignUpRequest;
@@ -14,19 +15,29 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class SignUpController extends Controller
 {
-    public function __construct()
+
+    protected $user;
+    public function __construct(JWTAuth $JWTAuth)
     {
         $this->middleware('cors');
+        try {
+            if (! $this->user = $JWTAuth->parseToken()->authenticate()) {
+                return response()->json(['user_not_found'], 404);
+            }
+        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+             return response()->json(['token_expired'], 400);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return response()->json(['token_invalid'], 400);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return response()->json(['token_absent'], 400);
+        }
     }
 
-    public function signUp(SignUpRequest $request, JWTAuth $JWTAuth)
+    public function signUp(SignUpRequest $request)
     {
-        Log::info('ddfdf');
-        Log::info($request->all());
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:150|unique:users',
-            'name' => 'max:120',
-            'password' => 'required|min:6|max:100'
+            'name' => 'max:120'
         ]);
 
         if ($validator->fails()) {
@@ -34,43 +45,36 @@ class SignUpController extends Controller
             return response()->json(['status' => 'fail', 'error' => $validator->errors()], 422);
         }
 
-        $user = new User($request->all());
+        Log::info($request->all());
+
+        
+        $user = $this->user;
+        $user->fill($request->all());
         if(!$user->save()) {
             throw new HttpException(500);
         }
-
-        if(!Config::get('boilerplate.sign_up.release_token')) {
-            return response()->json([
-                'status' => 'ok'
-            ], 201);
-        }
-
-        $token = $JWTAuth->fromUser($user);
         return response()->json([
             'status' => 'ok',
             'id' => $user->id,
-            'token' => $token,
             'email' => $user->email,
             'name' => $user->name
         ], 201);
     }
 
-    public function verifyToken(JWTAuth $JWTAuth)
+    public function verifyToken()
     {
-        try {
-            $user = $JWTAuth->parseToken()->authenticate();
-            if (! $user = $JWTAuth->parseToken()->authenticate()) {
-                Log::info('aaaaaa');
-                return response()->json(['user_not_found'], 404);
-            }
-        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-             return response()->json(['token_expired'], $e->getStatusCode());
-        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {Log::info('aaaaaa');
-            return response()->json(['token_invalid'], $e->getStatusCode());
-        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {Log::info('aaaaaa');
-            return response()->json(['token_absent'], $e->getStatusCode());
-        }
+        $user = $this->user;
         // the token is valid and we have found the user via the sub claim
-        return response()->json(compact('user'));
+        return response()->json(compact('user'), 201);
+    }
+
+    public function savePushToken(Request $request)
+    {
+        Log::info('ttt');
+        $this->user->push_token = $request->token;
+        $this->user->save();
+        return response()->json([
+            'status' => 'ok'
+        ], 200);
     }
 }
