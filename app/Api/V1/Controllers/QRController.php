@@ -48,11 +48,12 @@ class QRController extends Controller
 			QrCode::format('png')->size(500)->generate($queue->data, public_path() . '/uploads/qr/'.$queue->file );
 			$queue->save();
 		}
+        $cur_token = $queue->cur_token? $queue->cur_token:'--';
     	
 		return response()->json([
             'status' => 'ok',
             'qr' => $queue->file,
-            'token' => $queue->cur_token
+            'token' => $cur_token
         ], 201);
     }
 }

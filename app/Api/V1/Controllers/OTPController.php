@@ -35,16 +35,19 @@ class OTPController extends Controller
         {
             $end_point = 'https://api.textlocal.in/send/?apikey=ZZeKtShm5CI-9E3QPOKTQJ5fB1SswBeWLrAyjLQBZf&';
             $otp =  rand(pow(10, 3), pow(10, 4)-1);
-            $url = $end_point.'numbers='.$request->mobile.'&'.'message=Your OTP verification number is '.$otp;
+            $message = urlencode('Your%20OTP verification number is '.$otp);
+            $url = $end_point.'numbers='.$request->mobile.'&'.'message='.$message;
             $otp_row = OTP::firstorCreate(['mobile' => $request->mobile]);
             $otp_row->otp = $otp;
             $otp_row->save();
             $ch = curl_init($url);
 
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+            // $url = urlencode($url);
             curl_setopt($ch, CURLOPT_URL,$url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             $output = curl_exec ($ch);
+            Log::info($output);
             return response()->json([
                 'status' => 'ok'
             ], 201);
