@@ -39,7 +39,7 @@ class QRController extends Controller
 
     public function generateQR(Request $request)
     {
-    	Log::info($this->user);
+    	Log::info($this->user);    
     	$queue = Queue::firstOrNew(['user_id' => $this->user->id]);
     	$queue->file = $this->user->id.'_qr.png';
     	if(!file_exists($queue->file))
@@ -48,6 +48,7 @@ class QRController extends Controller
 			QrCode::format('png')->size(500)->generate($queue->data, public_path() . '/uploads/qr/'.$queue->file );
 			$queue->save();
 		}
+        Log::info($queue);
         $cur_token = $queue->cur_token? $queue->cur_token:'--';
     	
 		return response()->json([
