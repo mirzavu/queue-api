@@ -42,8 +42,9 @@ class QRController extends Controller
     	Log::info($this->user);    
     	$queue = Queue::firstOrNew(['user_id' => $this->user->id]);
     	$queue->file = $this->user->id.'_qr.png';
-    	if(!file_exists($queue->file))
+    	if(!file_exists(public_path() . '/uploads/qr/'.$queue->file))
 		{
+            Log::info('lala');
 			$queue->data = md5(uniqid($this->user->id, true));
 			QrCode::format('png')->size(500)->generate($queue->data, public_path() . '/uploads/qr/'.$queue->file );
 			$queue->save();
