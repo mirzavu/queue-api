@@ -19,6 +19,7 @@ class CreateQrTable extends Migration
             $table->string('data');
             $table->integer('user_id');
             $table->integer('token_no')->nullable();
+            $table->integer('cur_token')->nullable();
             $table->integer('qlimit')->nullable();
             $table->timestamps();
         });
