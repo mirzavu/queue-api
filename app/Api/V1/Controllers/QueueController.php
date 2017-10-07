@@ -12,6 +12,7 @@ use App\Http\Requests;
 use Tymon\JWTAuth\JWTAuth;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Http\Controllers\Controller;
+use App\Events\eventTrigger;
 
 class QueueController extends Controller
 {
@@ -66,6 +67,7 @@ class QueueController extends Controller
     	
 		return response()->json([
             'status' => 'ok',
+            'queue_id' => $queue->id,
             'token' => $holder->token,
             'current' =>$queue->cur_token
         ], 201);
@@ -103,6 +105,9 @@ class QueueController extends Controller
             ]));
             $queue->cur_token = $next_holder->token;
             $queue->save();
+
+            event(new eventTrigger($queue));
+
             foreach ($next_list as $holder) {
                 array_push($push_list,[
                     "to" => $holder->user->push_token,

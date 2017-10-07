@@ -178,7 +178,7 @@ return [
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
+        App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
@@ -234,7 +234,9 @@ return [
         /*
          * Package Facades...
          */
+        'Broadcast' => Illuminate\Support\Facades\Broadcast::class,
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
+        'Pusher' => Pusher\Pusher::class,
         // 'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class
     ],
 
